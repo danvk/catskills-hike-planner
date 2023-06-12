@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [{include = "catskills_hike_planner"}]
 
 [tool.poetry.dependencies]
-python = ">=3.11,<3.12"
+python = ">=3.10,<3.11"
 SetCoverPy = "^0.9.1"
 numpy = "^1.24.3"
 scipy = "^1.10.1"
