@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "catskills-hike-planner"
+version = "0.1.0"
+description = ""
+authors = ["Dan Vanderkam <danvdk@gmail.com>"]
+readme = "README.md"
+packages = [{include = "catskills_hike_planner"}]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.12"
+SetCoverPy = "^0.9.1"
+numpy = "^1.24.3"
+scipy = "^1.10.1"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.0.272"
+black = "^23.3.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

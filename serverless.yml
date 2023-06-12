@@ -1,0 +1,25 @@
+org: danvk
+app: catskills-hike-planner
+service: catskills-hike-planner
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.9
+
+functions:
+  hello:
+    handler: handler.hello
+    events:
+      - httpApi:
+          path: /
+          method: get
+  find-hikes:
+    handler: handler.find_hikes
+    events:
+      - httpApi:
+          path: /find-hikes
+          method: post
+
+plugins:
+  - serverless-python-requirements
