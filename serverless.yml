@@ -9,7 +9,7 @@ provider:
 
 custom:
   pythonRequirements:
-    dockerizePip: true
+    dockerizePip: non-linux
 
 functions:
   hello:
