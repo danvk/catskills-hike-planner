@@ -7,9 +7,6 @@ provider:
   name: aws
   runtime: python3.10
 
-custom:
-  pythonRequirements:
-    dockerizePip: non-linux
 
 functions:
   hello:
@@ -27,3 +24,7 @@ functions:
 
 plugins:
   - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: non-linux
