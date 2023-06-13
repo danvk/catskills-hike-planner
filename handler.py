@@ -15,13 +15,17 @@ def hello(event, context):
     return response
 
 
+# TODO: input validation / error handling
+# TODO: lock down CORS
+
 def find_hikes(event, context):
     params = json.loads(event['body'])
     peaks_needed = params['peaks']
+    mode = params.get('mode', 'unrestricted')
     body = {
         'input': event,
         'set-cover-version': setcover.__version__,
-        **plan_hikes(peaks_needed),
+        **plan_hikes(peaks_needed, mode),
     }
 
     response = {
