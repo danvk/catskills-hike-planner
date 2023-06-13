@@ -6,6 +6,8 @@ frameworkVersion: '3'
 provider:
   name: aws
   runtime: python3.10
+  timeout: 30
+  memorySize: 2048  # optional, in MB, default is 1024
   httpApi:
     cors: true
 
