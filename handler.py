@@ -2,6 +2,8 @@ import json
 
 from SetCoverPy import setcover
 
+from peak_planner import plan_hikes
+
 def hello(event, context):
     body = {
         "message": "Go Serverless v3.0! Your function executed successfully!",
@@ -14,11 +16,12 @@ def hello(event, context):
 
 
 def find_hikes(event, context):
-    hikes = json.load(open('data/hikes.json'))
+    params = json.loads(event['body'])
+    peaks_needed = params['peaks']
     body = {
         "input": event,
-        "num-hikes": len(hikes),
         "set-cover-version": setcover.__version__,
+        **plan_hikes(peaks_needed),
     }
 
     response = {"statusCode": 200, "body": json.dumps(body)}
