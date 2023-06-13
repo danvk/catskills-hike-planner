@@ -85,7 +85,7 @@ def plan_hikes(peaks_to_hike: list[str], mode: str = 'unrestricted'):
         ]
     elif mode == 'day-only-prefer-loop':
         hikes = [
-           (d + (0 if nodes[0] == nodes[-1] else 3.5), nodes, d) for d, nodes in relevant_hikes if d_km < 21
+           (d + (0 if nodes[0] == nodes[-1] else 3.5), nodes, d) for d, nodes in relevant_hikes if d < 21
         ]
     else:
         raise ValueError(mode)
@@ -102,7 +102,7 @@ def plan_hikes(peaks_to_hike: list[str], mode: str = 'unrestricted'):
         'd_mi': d_km * 0.621371,
         'num_hikes': len(chosen),
         'hikes': chosen,
-        'features': fc,
+        'features': fc['features'],
     }
 
     return out
