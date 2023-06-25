@@ -92,7 +92,7 @@ def plan_hikes(peaks_to_hike: list[str], mode: str = 'unrestricted'):
 
     out = {
         'peaks_to_hike': peaks_to_hike,
-        'osm_ids': osm_ids,
+        'peak_ids': PEAKS,
         'hikes_considered': len(hikes),
     }
 

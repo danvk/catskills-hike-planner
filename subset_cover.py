@@ -7,6 +7,12 @@ from SetCoverPy import setcover
 from graph import get_lot_index, get_peak_index, read_hiking_graph
 
 
+def orient(coords: list, desired_first: tuple[float, float]):
+    if coords[-1] == desired_first:
+        return coords[::-1]
+    return coords
+
+
 def find_optimal_hikes_subset_cover(
     features: list, hikes: list, peak_osm_ids: list[int] | None = None
 ):
@@ -45,7 +51,7 @@ def find_optimal_hikes_subset_cover(
     tsp_fs = [f for f in peak_features if f['properties']['id'] in peak_id_to_idx]
     for f in tsp_fs:
         f['properties']['marker-size'] = 'small'
-    for hike in chosen_hikes:
+    for i, hike in enumerate(chosen_hikes):
         d_km, loop = hike[:2]
         cost = None
         if len(hike) > 2:
@@ -58,7 +64,7 @@ def find_optimal_hikes_subset_cover(
         for a, b in zip(loop[:-1], loop[1:]):
             path = nx.shortest_path(G, a, b, weight='weight')
             coordinates += [
-                G.edges[node_a, node_b]['feature']['geometry']['coordinates']
+                orient(G.edges[node_a, node_b]['feature']['geometry']['coordinates'], node_a)
                 for node_a, node_b in zip(path[:-1], path[1:])
             ]
         tsp_fs.append(
@@ -66,6 +72,7 @@ def find_optimal_hikes_subset_cover(
                 'type': 'Feature',
                 'properties': {
                     'nodes': loop,
+                    'hike_index': i,
                     'd_km': round(d_km, 2),
                     'd_mi': round(d_km * 0.621371, 2),
                     **({'cost': cost} if cost is not None else {}),
