@@ -61,7 +61,6 @@ def plan_hikes(peaks_to_hike: list[str], mode: str = 'unrestricted'):
 
     ha_code_to_osm_id = {ha_code: osm_id for ha_code, osm_id, _name in PEAKS}
     osm_ids = [ha_code_to_osm_id[ha_code] for ha_code in peaks_to_hike]
-    print(osm_ids)
     assert mode in MODES
 
     osm_ids_set = set(osm_ids)

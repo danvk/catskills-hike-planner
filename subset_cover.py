@@ -47,6 +47,8 @@ def find_optimal_hikes_subset_cover(
         if solver.s[j]:
             chosen_hikes.append(hike)
 
+    id_to_feature = {f['properties']['id']: f for f in features if 'id' in f['properties']}
+
     total_d_km = 0
     tsp_fs = [f for f in peak_features if f['properties']['id'] in peak_id_to_idx]
     for f in tsp_fs:
@@ -64,7 +66,10 @@ def find_optimal_hikes_subset_cover(
         for a, b in zip(loop[:-1], loop[1:]):
             path = nx.shortest_path(G, a, b, weight='weight')
             coordinates += [
-                orient(G.edges[node_a, node_b]['feature']['geometry']['coordinates'], node_a)
+                orient(
+                    G.edges[node_a, node_b]['feature']['geometry']['coordinates'],
+                    id_to_feature[node_a]['geometry']['coordinates']
+                )
                 for node_a, node_b in zip(path[:-1], path[1:])
             ]
         tsp_fs.append(
