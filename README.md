@@ -4,7 +4,9 @@ This is the serverless backend part of the [Catskills Hike Planner][planner].
 
 Deploy:
 
-    sls deploy
+    sls deploy --param=git_sha=$(git rev-parse HEAD)
+
+(The git SHA is used as a cache key.)
 
 Local development:
 
