@@ -8,6 +8,8 @@ provider:
   runtime: python3.10
   timeout: 28
   memorySize: 2048  # optional, in MB, default is 1024
+  environment:
+    GIT_SHA: ${param:git_sha}
   httpApi:
     cors: true
 
