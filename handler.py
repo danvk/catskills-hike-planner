@@ -1,13 +1,22 @@
 import json
+import os
+from subprocess import check_output
 
 from SetCoverPy import setcover
 
 from peak_planner import plan_hikes
 
 def hello(event, context):
+    git_sha = None
+    try:
+        git_sha = check_output(['git', 'rev-parse', 'HEAD']).decode('utf-8').strip()
+    except FileNotFoundError as e:
+        print(e)
     body = {
         'message': 'Go Serverless v3.0! Your function executed successfully!',
         'input': event,
+        'env': {k: v for k, v in os.environ.items()},
+        'git_sha': git_sha,
     }
 
     response = {'statusCode': 200, 'body': json.dumps(body)}
