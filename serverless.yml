@@ -37,30 +37,30 @@ package:
     - node_modules/**
 
 functions:
-  # hello:
-  #   handler: handler.hello
-  #   events:
-  #     - httpApi:
-  #         path: /
-  #         method: get
+  hello:
+    handler: handler.hello
+    events:
+      - httpApi:
+          path: /
+          method: get
   find-hikes:
     handler: handler.find_hikes
     events:
       - httpApi:
           path: /find-hikes
           method: post
-  # get_cache:
-  #   handler: handler.get_cache
-  #   events:
-  #     - httpApi:
-  #         path: /get-cache
-  #         method: get
-  # insert_cache:
-  #   handler: handler.insert_cache
-  #   events:
-  #     - httpApi:
-  #         path: /insert-cache
-  #         method: post
+  get_cache:
+    handler: handler.get_cache
+    events:
+      - httpApi:
+          path: /get-cache
+          method: get
+  insert_cache:
+    handler: handler.insert_cache
+    events:
+      - httpApi:
+          path: /insert-cache
+          method: post
 
 plugins:
   - serverless-python-requirements
