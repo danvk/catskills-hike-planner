@@ -1,16 +1,22 @@
+import datetime
 import json
 import os
 
+import boto3
 from SetCoverPy import setcover
 
 from peak_planner import plan_hikes
 
+CACHE_TABLE = os.environ['CACHE_TABLE']
+GIT_SHA = os.environ.get('GIT_SHA')
+client = boto3.client('dynamodb')
+
+
 def hello(event, context):
-    git_sha = os.environ.get('GIT_SHA')
     body = {
         'message': 'Go Serverless v3.0! Your function executed successfully!',
         'input': event,
-        'git_sha': git_sha,
+        'git_sha': GIT_SHA,
     }
 
     response = {'statusCode': 200, 'body': json.dumps(body)}
@@ -39,4 +45,40 @@ def find_hikes(event, context):
         'body': json.dumps(body),
     }
 
+    return response
+
+
+def get_cache(event):
+    response = client.query(
+        TableName=CACHE_TABLE,
+        Key={
+            'gitSha': { 'S': GIT_SHA }
+        }
+    )
+    rows = [{
+        k: row.get(k).get('S')
+        for k in  ['gitSha', 'requestKey', 'timestamp', 'response']
+    } for row in response['Items']]
+    response = {'statusCode': 200, 'body': json.dumps(rows)}
+    return response
+
+
+def insert_cache(event):
+    params = json.loads(event['body'])
+    request_key = params['request_key']
+    response = params['response']
+
+    item = {
+        'gitSha': {'S': GIT_SHA },
+        'requestKey': {'S': request_key },
+        'timestamp': {'S': datetime.datetime.utcnow().isoformat() },
+        'response': {'S': response },
+    }
+
+    resp = client.put_item(
+        TableName=CACHE_TABLE,
+        Item=item
+    )
+
+    response = {'statusCode': 200, 'body': json.dumps({'item': item, 'response': resp})}
     return response

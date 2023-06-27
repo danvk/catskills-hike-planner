@@ -5,13 +5,27 @@ frameworkVersion: '3'
 
 provider:
   name: aws
+  stage: dev
+  region: us-east-1
   runtime: python3.10
   timeout: 28
   memorySize: 2048  # optional, in MB, default is 1024
-  environment:
-    GIT_SHA: ${param:git_sha}
   httpApi:
     cors: true
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - { "Fn::GetAtt": ["CacheDynamoDBTable", "Arn" ] }
+  environment:
+    CACHE_TABLE: ${self:custom.tableName}
+    GIT_SHA: ${param:git_sha}
 
 functions:
   hello:
@@ -26,6 +40,18 @@ functions:
       - httpApi:
           path: /find-hikes
           method: post
+  get_cache:
+    handler: handler.get_cache
+    events:
+      - httpApi:
+          path: /get-cache
+          method: get
+  insert_cache:
+    handler: handler.insert_cache
+    events:
+      - httpApi:
+          path: /insert-cache
+          method: post
 
 plugins:
   - serverless-python-requirements
@@ -33,3 +59,28 @@ plugins:
 custom:
   pythonRequirements:
     dockerizePip: true
+  tableName: 'cache-table-${self:provider.stage}'
+
+resources:
+  Resources:
+    CacheDynamoDBTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: requestKey
+            AttributeType: S
+          -
+            AttributeName: gitSha
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: requestKey
+            KeyType: HASH
+          -
+            AttributeName: gitSha
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.tableName}
