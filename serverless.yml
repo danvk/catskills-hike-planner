@@ -36,12 +36,12 @@ package:
     - node_modules/**
 
 functions:
-  hello:
-    handler: handler.hello
-    events:
-      - httpApi:
-          path: /
-          method: get
+  # hello:
+  #   handler: handler.hello
+  #   events:
+  #     - httpApi:
+  #         path: /
+  #         method: get
   find-hikes:
     handler: handler.find_hikes
     events:
