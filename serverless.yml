@@ -54,12 +54,12 @@ functions:
   #     - httpApi:
   #         path: /get-cache
   #         method: get
-  insert_cache:
-    handler: handler.insert_cache
-    events:
-      - httpApi:
-          path: /insert-cache
-          method: post
+  # insert_cache:
+  #   handler: handler.insert_cache
+  #   events:
+  #     - httpApi:
+  #         path: /insert-cache
+  #         method: post
 
 plugins:
   - serverless-python-requirements
