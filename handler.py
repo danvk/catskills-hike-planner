@@ -49,15 +49,10 @@ def find_hikes(event, context):
 
 
 def get_cache(event):
-    response = client.query(
-        TableName=CACHE_TABLE,
-        Key={
-            'gitSha': { 'S': GIT_SHA }
-        }
-    )
+    response = client.scan(TableName=CACHE_TABLE)
     rows = [{
         k: row.get(k).get('S')
-        for k in  ['gitSha', 'requestKey', 'timestamp', 'response']
+        for k in  ['gitShaRequestKey', 'gitSha', 'timestamp', 'response']
     } for row in response['Items']]
     response = {'statusCode': 200, 'body': json.dumps(rows)}
     return response
@@ -67,10 +62,11 @@ def insert_cache(event):
     params = json.loads(event['body'])
     request_key = params['request_key']
     response = params['response']
+    git_sha_request_key=GIT_SHA + ' ' + request_key
 
     item = {
+        'gitShaRequestKey': {'S': git_sha_request_key },
         'gitSha': {'S': GIT_SHA },
-        'requestKey': {'S': request_key },
         'timestamp': {'S': datetime.datetime.utcnow().isoformat() },
         'response': {'S': response },
     }

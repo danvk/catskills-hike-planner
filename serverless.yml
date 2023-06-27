@@ -68,17 +68,11 @@ resources:
       Properties:
         AttributeDefinitions:
           -
-            AttributeName: requestKey
-            AttributeType: S
-          -
-            AttributeName: gitSha
+            AttributeName: gitShaRequestKey
             AttributeType: S
         KeySchema:
           -
-            AttributeName: requestKey
-            KeyType: HASH
-          -
-            AttributeName: gitSha
+            AttributeName: gitShaRequestKey
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
