@@ -10,6 +10,12 @@ provider:
   runtime: python3.10
   timeout: 28
   memorySize: 2048  # optional, in MB, default is 1024
+  package:
+    excludeDevDependencies: true
+    exclude:
+      - .git/**
+      - .vscode/**
+      - node_modules/**
   httpApi:
     cors: true
   iamRoleStatements:
