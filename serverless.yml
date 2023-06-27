@@ -28,7 +28,7 @@ provider:
     GIT_SHA: ${param:git_sha}
 
 package:
-  individually: true
+  # individually: true
   excludeDevDependencies: true
   exclude:
     - .git/**
@@ -48,12 +48,12 @@ functions:
       - httpApi:
           path: /find-hikes
           method: post
-  get_cache:
-    handler: handler.get_cache
-    events:
-      - httpApi:
-          path: /get-cache
-          method: get
+  # get_cache:
+  #   handler: handler.get_cache
+  #   events:
+  #     - httpApi:
+  #         path: /get-cache
+  #         method: get
   insert_cache:
     handler: handler.insert_cache
     events:
