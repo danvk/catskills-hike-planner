@@ -2,14 +2,15 @@ import datetime
 import json
 import os
 
-import boto3
+# import boto3
 from SetCoverPy import setcover
 
 from peak_planner import plan_hikes
 
 CACHE_TABLE = os.environ['CACHE_TABLE']
 GIT_SHA = os.environ.get('GIT_SHA')
-client = boto3.client('dynamodb')
+# client = boto3.client('dynamodb')
+client = None
 
 
 def hello(event, context):
