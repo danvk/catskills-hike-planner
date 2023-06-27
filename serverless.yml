@@ -29,6 +29,7 @@ provider:
 
 package:
   # individually: true
+  individually: false
   excludeDevDependencies: true
   exclude:
     - .git/**
@@ -67,6 +68,7 @@ plugins:
 custom:
   pythonRequirements:
     dockerizePip: true
+    slim: true
   tableName: 'cache-table-${self:provider.stage}'
 
 resources:
