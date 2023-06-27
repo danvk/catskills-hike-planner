@@ -2,7 +2,7 @@ import datetime
 import json
 import os
 
-import boto3
+import boto3  # installed by default on AWS
 from SetCoverPy import setcover
 
 from peak_planner import plan_hikes
@@ -49,7 +49,7 @@ def find_hikes(event, context):
     return response
 
 
-def get_cache(event):
+def get_cache(event, context):
     response = client.scan(TableName=CACHE_TABLE)
     rows = [{
         k: row.get(k).get('S')
@@ -59,7 +59,7 @@ def get_cache(event):
     return response
 
 
-def insert_cache(event):
+def insert_cache(event, context):
     params = json.loads(event['body'])
     request_key = params['request_key']
     response = params['response']
