@@ -28,6 +28,7 @@ provider:
     GIT_SHA: ${param:git_sha}
 
 package:
+  individually: true
   excludeDevDependencies: true
   exclude:
     - .git/**
