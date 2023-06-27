@@ -27,17 +27,71 @@ def hello(event, context):
 # TODO: input validation / error handling
 # TODO: lock down CORS
 
+
+def get_from_cache(request_key: str):
+    resp = client.get_item(
+        TableName=CACHE_TABLE,
+        Key={'gitShaRequestKey': {'S': GIT_SHA + ' ' + request_key }}
+    )
+    item = resp.get('Item')
+    if not item:
+        return None
+
+    return {
+        k: item.get(k).get('S')
+        for k in  ['gitShaRequestKey', 'gitSha', 'timestamp', 'response']
+    }
+
+
+def insert_in_cache(request_key: str, response: str):
+    git_sha_request_key=GIT_SHA + ' ' + request_key
+
+    item = {
+        'gitShaRequestKey': {'S': git_sha_request_key },
+        'gitSha': {'S': GIT_SHA },
+        'timestamp': {'S': datetime.datetime.utcnow().isoformat() },
+        'response': {'S': response },
+    }
+
+    _resp = client.put_item(
+        TableName=CACHE_TABLE,
+        Item=item
+    )
+
+
 def find_hikes(event, context):
     params = json.loads(event['body'])
     peaks_needed = params['peaks']
     mode = params.get('mode', 'unrestricted')
+
+    response = None
+    computed_hikes = None
+    request_key = json.dumps(params)
+    response_from_cache = get_from_cache(request_key)
+    if response_from_cache:
+        response = json.loads(response_from_cache['response'])
+        response['cache'] = {
+            'hit': True,
+            'timestamp': response_from_cache['timestamp'],
+            'key': response_from_cache['gitShaRequestKey'],
+        }
+    else:
+        computed_hikes = plan_hikes(peaks_needed, mode)
+        response = {
+            **computed_hikes,
+            'cache': False,
+        }
+
     body = {
         'input': event,
         'set-cover-version': setcover.__version__,
-        **plan_hikes(peaks_needed, mode),
+        **response,
     }
 
-    response = {
+    if not response_from_cache:
+        insert_in_cache(request_key, json.dumps(computed_hikes))
+
+    return {
         'statusCode': 200,
         'headers': {
             'Access-Control-Allow-Origin': '*',
@@ -45,8 +99,6 @@ def find_hikes(event, context):
         },
         'body': json.dumps(body),
     }
-
-    return response
 
 
 def get_cache(event, context):
