@@ -38,6 +38,7 @@ def plan_hikes(peaks_to_hike: list[str], mode: str = 'unrestricted'):
     relevant_hikes = [
         h for h in all_hikes if any(peak_id in osm_ids_set for peak_id in h[-1])
     ]
+    print(f'{osm_ids_set=}, {len(osm_ids_set)}, {len(osm_ids)}, {peaks_to_hike=}')
 
     if mode == 'unrestricted':
         hikes = relevant_hikes
@@ -48,13 +49,13 @@ def plan_hikes(peaks_to_hike: list[str], mode: str = 'unrestricted'):
     elif mode == 'day-only':
         # TODO: parameterize the 21km
         hikes = [
-            (d, ele, nodes) for d, ele, nodes in relevant_hikes if d < 21
-        ]  # 21km = ~13 miles
+            (d, ele, nodes) for d, ele, nodes in relevant_hikes if d < 25
+        ]  # 25km = ~15 miles
     elif mode == 'day-loop-only':
         hikes = [
             (d, ele, nodes)
             for d, ele, nodes in relevant_hikes
-            if d < 21 and nodes[0] == nodes[-1]
+            if d < 30 and nodes[0] == nodes[-1]
         ]
     elif mode == 'prefer-loop':
         # TODO: parameterize the 3.5km penalty
@@ -65,16 +66,30 @@ def plan_hikes(peaks_to_hike: list[str], mode: str = 'unrestricted'):
     elif mode == 'day-only-prefer-loop':
         hikes = [
            (d + (0 if nodes[0] == nodes[-1] else 3.5), ele, nodes, d)
-            for d, ele, nodes in relevant_hikes if d < 21
+            for d, ele, nodes in relevant_hikes if d < 25
         ]
     else:
         raise ValueError(mode)
 
+    # Always include the shortest loop to each peak, regardless of constraints
+    peak_to_shortest = {}
+    for hike in relevant_hikes:
+        nodes = hike[-1]
+        if nodes[0] != nodes[-1]:
+            continue
+        for node in nodes[1:-1]:
+            old = peak_to_shortest.get(node)
+            if not old or old[0] > hike[0]:
+                peak_to_shortest[node] = hike
+    hikes += [*peak_to_shortest.values()]
+
+    print(f'Considering {len(hikes)} hikes')
     out = {
         'peaks_to_hike': peaks_to_hike,
         'peak_ids': PEAKS,
         'hikes_considered': len(hikes),
     }
+    # print(hikes)
 
     d_km, chosen, fc = find_optimal_hikes_subset_cover(features, hikes, osm_ids)
     out['solution'] = {

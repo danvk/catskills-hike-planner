@@ -7,10 +7,10 @@ from SetCoverPy import setcover
 
 from peak_planner import plan_hikes
 
-CACHE_TABLE = os.environ['CACHE_TABLE']
-GIT_SHA = os.environ.get('GIT_SHA')
-client = boto3.client('dynamodb')
-# client = None
+CACHE_TABLE = '' # os.environ['CACHE_TABLE']
+GIT_SHA = '' # os.environ.get('GIT_SHA')
+# client = boto3.client('dynamodb')
+client = None
 
 
 def hello(event, context):
@@ -29,6 +29,8 @@ def hello(event, context):
 
 
 def get_from_cache(request_key: str):
+    if not client:
+        return None
     resp = client.get_item(
         TableName=CACHE_TABLE,
         Key={'gitShaRequestKey': {'S': GIT_SHA + ' ' + request_key }}
@@ -44,6 +46,8 @@ def get_from_cache(request_key: str):
 
 
 def insert_in_cache(request_key: str, response: str):
+    if not client:
+        return
     git_sha_request_key=GIT_SHA + ' ' + request_key
 
     item = {
