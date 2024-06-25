@@ -14,7 +14,7 @@ def orient(coords: list, desired_first: tuple[float, float]):
 
 
 def find_optimal_hikes_subset_cover(
-    features: list, hikes: list, peak_osm_ids: list[int] | None = None
+    features: list, hikes: list, peak_osm_ids: list[int] | None = None, maxiters=20
 ):
     """hikes is a list of either:
 
@@ -44,18 +44,18 @@ def find_optimal_hikes_subset_cover(
     median_cost = np.median(costs)
     costs = costs / median_cost
 
-    solver = setcover.SetCover(covers, costs, maxiters=2)
+    solver = setcover.SetCover(covers, costs, maxiters=maxiters)
     solver.SolveSCP()
-    # total_cost = solver.total_cost * median_cost
     chosen_hikes = []
     for j, hike in enumerate(hikes):
         if solver.s[j]:
             chosen_hikes.append(hike)
 
-    id_to_feature = {f['properties']['id']: f for f in features if 'id' in f['properties']}
-
     total_d_km = 0
     tsp_fs = [f for f in peak_features if f['properties']['id'] in peak_id_to_idx]
+    id_to_feature = {
+        f['properties']['id']: f for f in features if 'id' in f['properties']
+    }
     for f in tsp_fs:
         f['properties']['marker-size'] = 'small'
     for i, hike in enumerate(chosen_hikes):
@@ -73,7 +73,7 @@ def find_optimal_hikes_subset_cover(
             coordinates += [
                 orient(
                     G.edges[node_a, node_b]['feature']['geometry']['coordinates'],
-                    id_to_feature[node_a]['geometry']['coordinates']
+                    id_to_feature[node_a]['geometry']['coordinates'],
                 )
                 for node_a, node_b in zip(path[:-1], path[1:])
             ]
