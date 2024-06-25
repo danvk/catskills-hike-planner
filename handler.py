@@ -7,10 +7,12 @@ from SetCoverPy import setcover
 
 from peak_planner import plan_hikes
 
-CACHE_TABLE = '' # os.environ['CACHE_TABLE']
-GIT_SHA = '' # os.environ.get('GIT_SHA')
-# client = boto3.client('dynamodb')
-client = None
+DEV = os.environ.get('DEV')
+CACHE_TABLE = os.environ['CACHE_TABLE'] if not DEV else ''
+GIT_SHA = os.environ.get('GIT_SHA') if not DEV else '123abc'
+client = boto3.client('dynamodb') if not DEV else None
+
+print('Running in', 'dev' if DEV else 'prod', 'mode')
 
 
 def hello(event, context):
@@ -63,10 +65,25 @@ def insert_in_cache(request_key: str, response: str):
     )
 
 
+def error(code: int, msg: str):
+    return {
+        'statusCode': code,
+        'headers': {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': True,
+        },
+        'body': msg,
+    }
+
+
 def find_hikes(event, context):
     params = json.loads(event['body'])
+    area = params['area']
     peaks_needed = params['peaks']
     mode = params.get('mode', 'unrestricted')
+    max_len_km = params.get('max_len_km', 1_000)
+    if max_len_km <= 0:
+        return error(400, f'Invalid max_len_km: {max_len_km}')
 
     response = None
     computed_hikes = None
@@ -80,7 +97,7 @@ def find_hikes(event, context):
             'key': response_from_cache['gitShaRequestKey'],
         }
     else:
-        computed_hikes = plan_hikes(peaks_needed, mode)
+        computed_hikes = plan_hikes(area, peaks_needed, mode, max_len_km)
         response = {
             **computed_hikes,
             'cache': False,
