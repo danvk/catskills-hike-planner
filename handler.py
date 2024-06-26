@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+import sys
 
 import boto3  # installed by default on AWS
 from SetCoverPy import setcover
@@ -48,7 +49,7 @@ def get_from_cache(request_key: str):
 
 
 def insert_in_cache(request_key: str, response: str):
-    if not client:
+    if not client or len(response) > 400_000:
         return
     git_sha_request_key=GIT_SHA + ' ' + request_key
 
@@ -59,10 +60,14 @@ def insert_in_cache(request_key: str, response: str):
         'response': {'S': response },
     }
 
-    _resp = client.put_item(
-        TableName=CACHE_TABLE,
-        Item=item
-    )
+    try:
+        _resp = client.put_item(
+            TableName=CACHE_TABLE,
+            Item=item
+        )
+    except Exception as e:
+        # Might be payload too large; regardless, cache can be best-effort.
+        sys.stderr.write(f'{e}\n')
 
 
 def error(code: int, msg: str):
